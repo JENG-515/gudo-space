@@ -241,6 +241,27 @@ def admin_files(filename):
 
 
 # ================================================================== 公開 API
+@app.get("/api/debug")
+def api_debug():
+    def safe_ls(p):
+        try:
+            return sorted(os.listdir(p))[:40]
+        except Exception as e:
+            return "ERR:" + str(e)
+    return jsonify({
+        "cwd": os.getcwd(),
+        "server_file": os.path.abspath(__file__),
+        "BASE_DIR": BASE_DIR,
+        "PUBLIC_DIR": PUBLIC_DIR,
+        "public_isdir": os.path.isdir(PUBLIC_DIR),
+        "index_isfile": os.path.isfile(os.path.join(PUBLIC_DIR, "index.html")),
+        "base_ls": safe_ls(BASE_DIR),
+        "cwd_ls": safe_ls(os.getcwd()),
+        "public_ls": safe_ls(PUBLIC_DIR),
+        "use_supabase": store.USE_SUPABASE,
+    })
+
+
 @app.get("/api/content")
 def api_get_content():
     return jsonify(store.get_content())
