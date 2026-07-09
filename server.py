@@ -38,7 +38,7 @@ from werkzeug.utils import secure_filename  # noqa: E402
 import store  # noqa: E402
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PUBLIC_DIR = os.path.join(BASE_DIR, "public")
+PUBLIC_DIR = os.path.join(BASE_DIR, "web")
 ADMIN_DIR = os.path.join(BASE_DIR, "admin")
 ASSETS_DIR = store.ASSETS_DIR
 DATA_DIR = store.DATA_DIR

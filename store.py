@@ -20,7 +20,7 @@ except ImportError:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("GUDO_DATA_DIR", os.path.join(BASE_DIR, "data"))
-ASSETS_DIR = os.path.join(BASE_DIR, "public", "assets")
+ASSETS_DIR = os.path.join(BASE_DIR, "web", "assets")
 
 SUPA_URL = (os.environ.get("SUPABASE_URL") or "").rstrip("/")
 SUPA_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or ""
