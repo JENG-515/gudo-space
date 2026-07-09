@@ -509,7 +509,7 @@
   "sections": {
     "about": true,
     "availability": true,
-    "brands": false,
+    "brands": true,
     "customBlocks": true,
     "diff": true,
     "events": true,

@@ -3,6 +3,10 @@
 __pycache__/
 *.pyc
 
+# 環境變數／密鑰（絕不進版控）
+.env
+.env.local
+
 # 執行期資料（含帳號與名單，勿進版控）
 data/submissions.json
 data/users.json
