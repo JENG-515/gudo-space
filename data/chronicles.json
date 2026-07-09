@@ -1,0 +1,35 @@
+[
+  {
+    "id": "0bdee8649c39",
+    "slug": "launch-night",
+    "title": "GUDO 開幕交流夜",
+    "date": "2026-06-28",
+    "location": "GUDO Space",
+    "cover": "office-24.jpg",
+    "gallery": [
+      "office-17.jpg",
+      "office-22.jpg",
+      "office-34.jpg",
+      "office-23.jpg"
+    ],
+    "excerpt": "開幕夜，來自整理收納、清潔、設計、行銷等領域的創業夥伴齊聚一堂，聊創業、聊生活、也聊未來的合作。",
+    "body": "開幕交流夜這晚，空間裡坐滿了來自不同領域的創業夥伴——整理收納、清潔、搬家、空間設計、行銷、內容創作。\n\n大家從各自的專業聊起，也聊到創業路上的甘苦，現場交換了不少接案與合作的想法。這正是我們想像中的 GUDO Space：一個讓人願意交流、彼此推薦、一起把產業做大的地方。\n\n謝謝每一位到場的夥伴，我們下次活動見。",
+    "published": true
+  },
+  {
+    "id": "afc97c57af7d",
+    "slug": "brand-workshop",
+    "title": "小型品牌定位工作坊 現場",
+    "date": "2026-06-15",
+    "location": "GUDO Space 大教室",
+    "cover": "class-11.jpg",
+    "gallery": [
+      "class-01.jpg",
+      "class-07.jpg",
+      "class-04.jpg"
+    ],
+    "excerpt": "一個下午，陪小型品牌主一起釐清定位、定價與顧客經營，把模糊的想法變成清楚的下一步。",
+    "body": "這場工作坊聚焦在小型品牌最常卡關的三件事：定位、定價、顧客經營。\n\n透過實際的練習與彼此的回饋，參加的品牌主把原本模糊的想法，一步步整理成清楚可執行的下一步。\n\n未來我們會持續舉辦這類主題工作坊，讓會員在工作之外，也能一起成長。",
+    "published": true
+  }
+]

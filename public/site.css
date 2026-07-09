@@ -1,0 +1,120 @@
+/* ===================================================================
+   GUDO Space — 子頁面共用樣式（方案詳情 / 最新消息 / 活動紀實 / 文章）
+   沿用 styles.css 的設計 token 與元件，這裡只加子頁面專用樣式。
+   =================================================================== */
+
+/* 子頁上方留白（因為 nav 是 sticky） */
+.subpage { padding-top: 56px; }
+
+/* 麵包屑 */
+.breadcrumb { font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; }
+.breadcrumb a { color: var(--ink-soft); }
+.breadcrumb a:hover { color: var(--gold-deep); }
+.breadcrumb span { margin: 0 8px; opacity: .5; }
+
+/* 頁面標題區 */
+.page-head { padding: 64px 0 8px; }
+.page-head .display { margin-bottom: 14px; }
+.page-head .section__sub { margin-bottom: 0; }
+
+/* ---------- 方案詳情（產品頁） ---------- */
+.pd { padding: 40px 0 20px; }
+.pd__top { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.pd__media .media { aspect-ratio: 4/3; }
+.pd__flag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--forest-deep); background: var(--gold); padding: 5px 13px; border-radius: 999px; margin-bottom: 16px; }
+.pd__name { font-family: var(--serif); font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px; }
+.pd__tagline { font-family: var(--serif); font-size: 20px; color: var(--gold-deep); margin-bottom: 20px; }
+.pd__price { font-family: var(--display); font-size: 48px; font-weight: 700; color: var(--forest); line-height: 1; margin-bottom: 4px; }
+.pd__price span { font-family: var(--sans); font-size: 16px; font-weight: 500; color: var(--ink-soft); }
+.pd__status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; padding: 7px 15px; border-radius: 999px; margin: 18px 0; }
+.pd__lead { color: var(--ink-soft); margin: 18px 0 26px; }
+.pd__cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.pd__body { display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; margin-top: 64px; align-items: start; }
+.pd__section { margin-bottom: 40px; }
+.pd__section h2 { font-family: var(--serif); font-size: 24px; margin-bottom: 18px; }
+.pd__section p { color: var(--ink-soft); margin-bottom: 16px; }
+.pd__list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.pd__list li { position: relative; padding-left: 28px; color: var(--ink); }
+.pd__list li::before { content: "✓"; position: absolute; left: 0; color: var(--gold-deep); font-weight: 700; }
+.pd__aside { position: sticky; top: 96px; background: var(--cream-card); border: 1px solid var(--cream-line); border-radius: var(--radius-lg); padding: 30px; }
+.pd__aside h3 { font-family: var(--serif); font-size: 20px; margin-bottom: 6px; }
+.pd__aside .pd__price { font-size: 36px; margin-top: 10px; }
+.pd__aside .btn { width: 100%; margin-top: 18px; }
+.pd__aside .muted { font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+.notes { list-style: none; }
+.notes li { font-size: 14px; color: var(--ink-soft); padding-left: 20px; position: relative; margin-bottom: 10px; }
+.notes li::before { content: "·"; position: absolute; left: 6px; color: var(--gold-deep); }
+
+/* 相簿 */
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.gallery .media { aspect-ratio: 4/3; }
+
+/* 方案頁 FAQ 沿用 .faq */
+
+/* ---------- 卡片列表（消息 / 紀實） ---------- */
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.pcard { display: flex; flex-direction: column; background: var(--cream-card); border: 1px solid var(--cream-line); border-radius: var(--radius-lg); overflow: hidden; transition: transform .2s, box-shadow .2s; }
+.pcard:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(31,59,44,.1); }
+.pcard__media { aspect-ratio: 16/10; }
+.pcard__body { padding: 24px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+.pcard__meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; }
+.pcard__cat { font-weight: 700; letter-spacing: .06em; padding: 3px 10px; border-radius: 999px; background: rgba(198,162,78,.16); color: var(--gold-deep); }
+.pcard__title { font-family: var(--serif); font-size: 20px; line-height: 1.4; margin-bottom: 12px; }
+.pcard__excerpt { font-size: 14px; color: var(--ink-soft); line-height: 1.8; flex: 1; }
+.pcard__more { margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--gold-deep); }
+
+/* ---------- 文章 / 內頁 ---------- */
+.article { max-width: 760px; margin: 0 auto; }
+.article__meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; }
+.article__title { font-family: var(--serif); font-size: clamp(28px, 4vw, 40px); line-height: 1.3; margin-bottom: 24px; }
+.article__cover { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 16/9; margin-bottom: 36px; }
+.article__body p { color: var(--ink); line-height: 2; margin-bottom: 22px; font-size: 17px; }
+.article__foot { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--cream-line); }
+
+/* 首頁最新消息區塊 */
+.home-news__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+.home-news__head .more { font-size: 14px; font-weight: 700; color: var(--gold-deep); white-space: nowrap; }
+
+/* 進駐品牌 */
+.brands-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px; }
+.brand-card { background: var(--cream-card); border: 1px solid var(--cream-line); border-radius: var(--radius); padding: 26px 20px; text-align: center; text-decoration: none; color: inherit; transition: transform .2s, box-shadow .2s; }
+.brand-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(31,59,44,.08); }
+.brand-card__logo { height: 64px; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 18px; color: var(--forest); margin-bottom: 12px; }
+.brand-card__logo img { max-height: 64px; max-width: 100%; object-fit: contain; }
+.brand-card__name { font-family: var(--serif); font-size: 16px; margin-bottom: 6px; }
+.brand-card__desc { font-size: 13px; color: var(--ink-soft); line-height: 1.7; }
+
+/* 空狀態 */
+.empty-state { text-align: center; color: var(--ink-soft); padding: 80px 20px; }
+
+@media (max-width: 900px) { .brands-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .brands-grid { grid-template-columns: 1fr 1fr; } }
+
+/* 預約參觀彈窗 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(22,40,29,.6); z-index: 300; display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; animation: modalFade .2s ease; }
+@keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+.modal-panel { position: relative; background: var(--cream-card); border-radius: 22px; width: min(680px, 100%); box-shadow: 0 40px 80px rgba(0,0,0,.4); margin: auto; }
+.modal-body { padding: 40px 40px 44px; }
+.modal-close { position: absolute; top: 16px; right: 18px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(31,59,44,.08); color: var(--ink); font-size: 24px; line-height: 1; cursor: pointer; transition: .15s; z-index: 1; }
+.modal-close:hover { background: var(--forest-card); color: var(--on-dark); }
+.modal-title { font-family: var(--serif); font-size: clamp(24px, 4vw, 30px); margin: 10px 0 8px; }
+.modal-sub { color: var(--ink-soft); font-size: 15px; }
+.modal-body .form { margin-top: 26px; }
+@media (max-width: 560px) {
+  .modal-overlay { padding: 0; }
+  .modal-panel { border-radius: 0; min-height: 100%; width: 100%; }
+  .modal-body { padding: 30px 22px 36px; }
+}
+
+@media (max-width: 900px) {
+  .pd__top { grid-template-columns: 1fr; gap: 32px; }
+  .pd__body { grid-template-columns: 1fr; gap: 36px; }
+  .pd__aside { position: static; }
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: 1fr 1fr; }
+}

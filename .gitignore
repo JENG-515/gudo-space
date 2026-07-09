@@ -1,0 +1,14 @@
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+
+# 執行期資料（含帳號與名單，勿進版控）
+data/submissions.json
+data/users.json
+data/secret.key
+
+# 原始素材與參考文件（體積大、不需進版控；正式圖片已在 public/assets）
+incoming/
+*.pdf
+*.docx

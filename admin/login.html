@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>後台登入｜GUDO Space</title>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css?v=3" />
+</head>
+<body>
+  <div class="login">
+    <form class="login__card" id="loginForm">
+      <div class="login__brand"><img src="/assets/logo.svg" width="40" height="40" alt="" /><span>GUDO Space</span></div>
+      <h1>後台管理登入</h1>
+      <label>帳號<input id="lg-user" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required /></label>
+      <label>密碼
+        <span class="pw-wrap">
+          <input id="lg-pass" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required />
+          <button type="button" id="lg-show" class="pw-toggle">顯示</button>
+        </span>
+      </label>
+      <button class="btn btn--gold btn--block" type="submit">登入</button>
+      <p class="login__err" id="lg-err" hidden></p>
+      <p style="margin-top:18px"><a href="/" style="font-size:13px;color:var(--ink-soft)">← 回官網首頁</a></p>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (s) => document.querySelector(s);
+      const passInput = $("#lg-pass");
+      $("#lg-show").addEventListener("click", () => {
+        const show = passInput.type === "password";
+        passInput.type = show ? "text" : "password";
+        $("#lg-show").textContent = show ? "隱藏" : "顯示";
+      });
+      $("#loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("#lg-err").hidden = true;
+        const btn = e.target.querySelector('button[type="submit"]');
+        const username = $("#lg-user").value.trim();
+        const password = passInput.value.trim();
+        btn.disabled = true; btn.textContent = "登入中…";
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST", credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "登入失敗");
+          window.location.href = "/admin";      // 登入成功 → 進後台
+        } catch (err) {
+          $("#lg-err").textContent = (err.message || "登入失敗") + "（請確認大小寫，可按「顯示」檢查密碼）";
+          $("#lg-err").hidden = false;
+          btn.disabled = false; btn.textContent = "登入";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
