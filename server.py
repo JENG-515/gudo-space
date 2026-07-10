@@ -165,10 +165,136 @@ def public_user(u):
     return {"id": u["id"], "username": u["username"], "name": u.get("name", ""), "role": u.get("role", "editor")}
 
 
+# ================================================================== SSR / SEO 工具
+import re as _re  # noqa: E402
+
+
+def _esc(s):
+    return str(s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
+
+def _bold(s):
+    return _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+
+
+def _md_html(s):
+    html, para, lst = [], [], []
+
+    def flush_para():
+        if para:
+            html.append("<p>" + _bold(_esc("\n".join(para)).replace("\n", "<br>")) + "</p>")
+            para.clear()
+
+    def flush_list():
+        if lst:
+            html.append("<ul>" + "".join("<li>" + _bold(_esc(x)) + "</li>" for x in lst) + "</ul>")
+            lst.clear()
+
+    for raw in (s or "").split("\n"):
+        st = raw.strip()
+        if not st:
+            flush_para(); flush_list(); continue
+        if st.startswith("### "):
+            flush_para(); flush_list(); html.append("<h3>" + _esc(st[4:]) + "</h3>")
+        elif st.startswith("## "):
+            flush_para(); flush_list(); html.append("<h2>" + _esc(st[3:]) + "</h2>")
+        elif _re.match(r"^[-•]\s+", st):
+            flush_para(); lst.append(_re.sub(r"^[-•]\s+", "", st))
+        else:
+            flush_list(); para.append(st)
+    flush_para(); flush_list()
+    return "".join(html)
+
+
+def _fmt_date(s):
+    return str(s or "")[:10].replace("-", ".")
+
+
+def _read_tpl(name):
+    return open(os.path.join(PUBLIC_DIR, name), encoding="utf-8").read()
+
+
+def _asset_url(name):
+    if not name:
+        return None
+    if store.USE_SUPABASE:
+        return store.media_public_url(name)
+    return request.url_root.rstrip("/") + "/assets/" + name
+
+
+def _inject_head(tpl, title, desc, canonical, jsonld=None, og_type="website", image=None):
+    head = "<title>%s</title>\n" % _esc(title)
+    if desc:
+        head += '<meta name="description" content="%s">\n' % _esc(desc)
+        head += '<meta property="og:description" content="%s">\n' % _esc(desc)
+    head += '<meta property="og:title" content="%s">\n' % _esc(title)
+    head += '<meta property="og:type" content="%s">\n' % og_type
+    if image:
+        head += '<meta property="og:image" content="%s">\n' % _esc(image)
+    if canonical:
+        head += '<link rel="canonical" href="%s">\n' % _esc(canonical)
+    if jsonld:
+        head += '<script type="application/ld+json">%s</script>\n' % json.dumps(jsonld, ensure_ascii=False)
+    tpl = _re.sub(r"<title>.*?</title>", "", tpl, count=1, flags=_re.S)
+    return tpl.replace("</head>", head + "</head>")
+
+
+_LOADING = '<p class="muted" style="padding:80px 0">載入中…</p>'
+
+
+def _render_article(template, base, label, kind, slug):
+    tpl = _read_tpl(template)
+    item = store.coll_find(kind, slug)
+    if not item or (not item.get("published", True)):
+        return tpl
+    url = request.url_root.rstrip("/") + base + "/" + item["slug"]
+    img = _asset_url(item.get("cover"))
+    desc = item.get("excerpt", "")
+    schema = {"@context": "https://schema.org", "@type": "Article",
+              "headline": item["title"], "description": desc,
+              "datePublished": str(item.get("date", "")),
+              "author": {"@type": "Organization", "name": "GUDO Space"},
+              "publisher": {"@type": "Organization", "name": "GUDO Space",
+                            "logo": {"@type": "ImageObject", "url": request.url_root.rstrip("/") + "/assets/logo.svg"}},
+              "mainEntityOfPage": url}
+    if img:
+        schema["image"] = img
+    tpl = _inject_head(tpl, item["title"] + "｜GUDO Space", desc, url, schema, og_type="article", image=img)
+    meta_row = "<span>%s</span>" % _fmt_date(item.get("date"))
+    if kind == "posts" and item.get("category"):
+        meta_row += '<span class="pcard__cat">%s</span>' % _esc(item["category"])
+    if kind == "chronicles" and item.get("location"):
+        meta_row += "<span>📍 %s</span>" % _esc(item["location"])
+    cover = ('<div class="article__cover"><div class="media"><img src="%s" alt="%s"></div></div>'
+             % (_esc(img), _esc(item["title"]))) if img else ""
+    ssr = ('<article class="article">'
+           '<nav class="breadcrumb"><a href="/">首頁</a><span>›</span><a href="%s">%s</a><span>›</span>%s</nav>'
+           '<div class="article__meta">%s</div>'
+           '<h1 class="article__title">%s</h1>%s'
+           '<div class="article__body">%s</div>'
+           '</article>') % (base, label, _esc(item["title"]), meta_row, _esc(item["title"]), cover,
+                            _md_html(item.get("body") or desc))
+    return tpl.replace(_LOADING, ssr)
+
+
 # ================================================================== 前台頁面
 @app.route("/")
 def home():
-    return send_from_directory(PUBLIC_DIR, "index.html")
+    tpl = _read_tpl("index.html")
+    content = store.get_content()
+    settings = content.get("settings", {})
+    base = request.url_root.rstrip("/")
+    schema = {
+        "@context": "https://schema.org", "@type": "LocalBusiness",
+        "name": settings.get("brandName", "GUDO Space"),
+        "description": "位於台北信義區、捷運象山站步行約 3 分鐘的共享工作與交流空間，提供固定座、自由座、彈性會員、大會議室與大教室租借，適合自由工作者與生活服務創業者。",
+        "url": base + "/", "image": base + "/assets/office-38.jpg",
+        "areaServed": "台北市信義區", "priceRange": "NT$3,800–7,000",
+        "address": {"@type": "PostalAddress", "addressLocality": "信義區", "addressRegion": "台北市", "addressCountry": "TW"},
+        "knowsAbout": ["共享空間", "共享辦公室", "信義區共享空間", "象山站", "自由工作者", "生活服務創業", "教室租借", "會議室租借"],
+    }
+    tpl = _inject_head(tpl, "GUDO Space｜信義區共享空間・象山站步行 3 分鐘", None, base + "/", schema)
+    return tpl
 
 
 @app.route("/robots.txt")
@@ -202,29 +328,52 @@ def sitemap():
 
 @app.route("/plan/<slug>")
 def plan_page(slug):
-    return send_from_directory(PUBLIC_DIR, "plan.html")
+    tpl = _read_tpl("plan.html")
+    plan = next((p for p in store.get_content().get("plans", []) if p.get("slug") == slug), None)
+    if not plan:
+        return tpl
+    base = request.url_root.rstrip("/")
+    url = base + "/plan/" + slug
+    desc = plan.get("tagline", "") + "。" + (plan.get("desc", "") or "")
+    schema = {"@context": "https://schema.org", "@type": "Product",
+              "name": plan["name"] + "｜GUDO Space 信義區共享空間",
+              "description": desc,
+              "offers": {"@type": "Offer", "price": (plan.get("price", "") or "").replace(",", ""),
+                         "priceCurrency": "TWD", "url": url, "availability": "https://schema.org/InStock"}}
+    img = _asset_url((plan.get("gallery") or [None])[0])
+    if img:
+        schema["image"] = img
+    return _inject_head(tpl, plan["name"] + "｜GUDO Space 信義區共享空間", desc, url, schema, og_type="product", image=img)
 
 
 @app.route("/news")
 @app.route("/news/")
 def news_page():
-    return send_from_directory(PUBLIC_DIR, "news.html")
+    tpl = _read_tpl("news.html")
+    base = request.url_root.rstrip("/")
+    return _inject_head(tpl, "最新消息｜GUDO Space 信義區共享空間",
+                        "GUDO Space 的公告、活動預告，以及信義區共享空間、共享辦公室、生活服務創業的觀點分享。",
+                        base + "/news")
 
 
 @app.route("/news/<slug>")
 def post_page(slug):
-    return send_from_directory(PUBLIC_DIR, "post.html")
+    return _render_article("post.html", "/news", "最新消息", "posts", slug)
 
 
 @app.route("/chronicle")
 @app.route("/chronicle/")
 def chronicle_page():
-    return send_from_directory(PUBLIC_DIR, "chronicle.html")
+    tpl = _read_tpl("chronicle.html")
+    base = request.url_root.rstrip("/")
+    return _inject_head(tpl, "活動紀實｜GUDO Space 信義區共享空間",
+                        "GUDO Space 在信義區象山站舉辦過的活動、交流與現場紀錄。",
+                        base + "/chronicle")
 
 
 @app.route("/chronicle/<slug>")
 def story_page(slug):
-    return send_from_directory(PUBLIC_DIR, "story.html")
+    return _render_article("story.html", "/chronicle", "活動紀實", "chronicles", slug)
 
 
 # 圖片：本機有檔就直接給；沒有且使用 Supabase 就轉址到 Storage 公開網址

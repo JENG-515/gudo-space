@@ -8,18 +8,23 @@
   G.esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   G.el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   G.nl2p = (s) => (s || "").split(/\n{2,}/).map((p) => `<p>${G.esc(p).replace(/\n/g, "<br>")}</p>`).join("");
-  // 輕量 Markdown：## 標題、### 小標、- 清單、**粗體**、段落
-  G.mdToHtml = (s) => (s || "").split(/\n{2,}/).map((b) => {
-    b = b.trim();
-    if (!b) return "";
-    if (/^###\s+/.test(b)) return `<h3>${G.esc(b.replace(/^###\s+/, ""))}</h3>`;
-    if (/^##\s+/.test(b)) return `<h2>${G.esc(b.replace(/^##\s+/, ""))}</h2>`;
-    const lines = b.split(/\n/);
-    if (lines.every((l) => /^[-•]\s+/.test(l.trim()))) {
-      return `<ul>${lines.map((l) => `<li>${G.esc(l.trim().replace(/^[-•]\s+/, "")).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</li>`).join("")}</ul>`;
-    }
-    return `<p>${G.esc(b).replace(/\n/g, "<br>").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</p>`;
-  }).join("");
+  // 輕量 Markdown：## 標題、### 小標、- 清單、**粗體**、段落（逐行解析，可混排）
+  const _bold = (s) => s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  G.mdToHtml = (s) => {
+    const html = []; let para = []; let lst = [];
+    const flushP = () => { if (para.length) { html.push(`<p>${_bold(G.esc(para.join("\n")).replace(/\n/g, "<br>"))}</p>`); para = []; } };
+    const flushL = () => { if (lst.length) { html.push(`<ul>${lst.map((x) => `<li>${_bold(G.esc(x))}</li>`).join("")}</ul>`); lst = []; } };
+    (s || "").split(/\n/).forEach((raw) => {
+      const st = raw.trim();
+      if (!st) { flushP(); flushL(); return; }
+      if (/^###\s+/.test(st)) { flushP(); flushL(); html.push(`<h3>${G.esc(st.replace(/^###\s+/, ""))}</h3>`); }
+      else if (/^##\s+/.test(st)) { flushP(); flushL(); html.push(`<h2>${G.esc(st.replace(/^##\s+/, ""))}</h2>`); }
+      else if (/^[-•]\s+/.test(st)) { flushP(); lst.push(st.replace(/^[-•]\s+/, "")); }
+      else { flushL(); para.push(st); }
+    });
+    flushP(); flushL();
+    return html.join("");
+  };
   G.fmtDate = (s) => { if (!s) return ""; const m = String(s).slice(0, 10).split("-"); return m.length === 3 ? `${m[0]}.${m[1]}.${m[2]}` : s; };
   G.qs = (k) => new URLSearchParams(location.search).get(k);
   G.slugFromPath = () => decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() || "");
