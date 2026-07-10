@@ -18,6 +18,18 @@
   }
 
   document.title = `${item.title}｜GUDO Space`;
+  // SEO：meta description + canonical
+  const setMeta = (attr, key, val) => {
+    let m = document.head.querySelector(`meta[${attr}="${key}"]`);
+    if (!m) { m = document.createElement("meta"); m.setAttribute(attr, key); document.head.appendChild(m); }
+    m.setAttribute("content", val);
+  };
+  if (item.excerpt) { setMeta("name", "description", item.excerpt); setMeta("property", "og:description", item.excerpt); }
+  setMeta("property", "og:title", item.title + "｜GUDO Space");
+  let canon = document.head.querySelector('link[rel="canonical"]');
+  if (!canon) { canon = document.createElement("link"); canon.rel = "canonical"; document.head.appendChild(canon); }
+  canon.href = location.origin + cfg.base + "/" + encodeURIComponent(item.slug);
+
   const meta = cfg.active === "news"
     ? `<span>${G.fmtDate(item.date)}</span>${item.category ? `<span class="pcard__cat">${G.esc(item.category)}</span>` : ""}`
     : `<span>${G.fmtDate(item.date)}</span>${item.location ? `<span>📍 ${G.esc(item.location)}</span>` : ""}`;
@@ -35,7 +47,7 @@
       <div class="article__meta">${meta}</div>
       <h1 class="article__title">${G.esc(item.title)}</h1>
       ${cover}
-      <div class="article__body">${G.nl2p(item.body || item.excerpt || "")}</div>
+      <div class="article__body">${G.mdToHtml(item.body || item.excerpt || "")}</div>
       ${gallery}
       <div class="article__foot"><a class="btn btn--dark" href="${cfg.base}">← 返回${cfg.label}</a></div>
     </article>`;

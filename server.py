@@ -171,6 +171,35 @@ def home():
     return send_from_directory(PUBLIC_DIR, "index.html")
 
 
+@app.route("/robots.txt")
+def robots():
+    body = "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: %ssitemap.xml\n" % request.url_root
+    return Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    base = request.url_root.rstrip("/")
+    content = store.get_content()
+    urls = [base + "/", base + "/news", base + "/chronicle"]
+    for p in content.get("plans", []):
+        if p.get("slug"):
+            urls.append(base + "/plan/" + p["slug"])
+    try:
+        for post in store.coll_public("posts"):
+            urls.append(base + "/news/" + post["slug"])
+        for ch in store.coll_public("chronicles"):
+            urls.append(base + "/chronicle/" + ch["slug"])
+    except Exception:
+        pass
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        xml.append("  <url><loc>%s</loc></url>" % u)
+    xml.append("</urlset>")
+    return Response("\n".join(xml), mimetype="application/xml")
+
+
 @app.route("/plan/<slug>")
 def plan_page(slug):
     return send_from_directory(PUBLIC_DIR, "plan.html")

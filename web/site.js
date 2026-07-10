@@ -8,6 +8,18 @@
   G.esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   G.el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   G.nl2p = (s) => (s || "").split(/\n{2,}/).map((p) => `<p>${G.esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+  // 輕量 Markdown：## 標題、### 小標、- 清單、**粗體**、段落
+  G.mdToHtml = (s) => (s || "").split(/\n{2,}/).map((b) => {
+    b = b.trim();
+    if (!b) return "";
+    if (/^###\s+/.test(b)) return `<h3>${G.esc(b.replace(/^###\s+/, ""))}</h3>`;
+    if (/^##\s+/.test(b)) return `<h2>${G.esc(b.replace(/^##\s+/, ""))}</h2>`;
+    const lines = b.split(/\n/);
+    if (lines.every((l) => /^[-•]\s+/.test(l.trim()))) {
+      return `<ul>${lines.map((l) => `<li>${G.esc(l.trim().replace(/^[-•]\s+/, "")).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</li>`).join("")}</ul>`;
+    }
+    return `<p>${G.esc(b).replace(/\n/g, "<br>").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</p>`;
+  }).join("");
   G.fmtDate = (s) => { if (!s) return ""; const m = String(s).slice(0, 10).split("-"); return m.length === 3 ? `${m[0]}.${m[1]}.${m[2]}` : s; };
   G.qs = (k) => new URLSearchParams(location.search).get(k);
   G.slugFromPath = () => decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() || "");
